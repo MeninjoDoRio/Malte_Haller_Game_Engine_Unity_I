@@ -1,44 +1,88 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MovingPlatform3D : MonoBehaviour
 {
-    public float speed = 2f; // Geschwindigkeit der Plattform
-    public float distance = 10f; // Die Gesamtdistanz, über die sich die Plattform bewegt
+    public enum MovementType { UpDown, LeftRight, Custom }
 
-    private Vector3 startPos; // Startposition der Plattform
-    private Vector3 endPos; // Endposition der Plattform
-    private bool playerOnPlatform = false; // Gibt an, ob der Spieler auf der Plattform steht
+    public MovementType movementType;
+    public float distance = 5f;
+    public float speed = 2f;
+    public Transform pointA;
+    public Transform pointB;
+    public float drawWireSphereRadius = 0.2f;
 
-    private void Start()
+    private Vector3 startPos;
+    private Vector3 targetPos;
+    private bool movingForward = true;
+
+    void Start()
     {
-        startPos = transform.position; // Speichere die Startposition der Plattform
-        endPos = startPos + transform.right * distance; // Berechne die Endposition basierend auf der Startposition und der Distanz
+        startPos = transform.position;
+        CalculateTargetPosition();
     }
 
-    private void Update()
+    void FixedUpdate()
     {
-        // Bewege die Plattform zwischen Start- und Endposition
-        float pingPongValue = Mathf.PingPong(Time.time * speed / distance, 1f);
-        transform.position = Vector3.Lerp(startPos, endPos, pingPongValue);
+        MovePlatform();
     }
 
-    private void OnCollisionEnter(Collision collision)
+    void MovePlatform()
     {
-        if (collision.gameObject.CompareTag("Player"))
+        float step = speed * Time.deltaTime;
+        transform.position = Vector3.MoveTowards(transform.position, targetPos, step);
+
+        if (transform.position == targetPos)
         {
-            UnityEngine.Debug.Log("Player entered platform");
-            playerOnPlatform = true; // Setze den Spieler als auf der Plattform
-            collision.transform.parent = transform; // Setze den Spieler als Kindobjekt der Plattform
+            if (movementType == MovementType.Custom)
+                CalculateTargetPosition();
+            else
+                UpdateTargetPosition();
         }
     }
 
-    private void OnCollisionExit(Collision collision)
+    void UpdateTargetPosition()
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (movementType == MovementType.UpDown)
         {
-            UnityEngine.Debug.Log("Player exited Platform");
-            playerOnPlatform = false; // Entferne den Spieler von der Plattform
-            collision.transform.parent = null; // Entferne den Spieler als Kindobjekt der Plattform
+            if (transform.position.y == startPos.y)
+                movingForward = true;
+            else if (transform.position.y == startPos.y + distance)
+                movingForward = false;
+
+            targetPos = movingForward ? startPos + Vector3.up * distance : startPos;
         }
+        else if (movementType == MovementType.LeftRight)
+        {
+            if (transform.position.x == startPos.x)
+                movingForward = true;
+            else if (transform.position.x == startPos.x + distance)
+                movingForward = false;
+
+            targetPos = movingForward ? startPos + Vector3.right * distance : startPos;
+        }
+    }
+
+    void CalculateTargetPosition()
+    {
+        targetPos = (targetPos == pointA.position) ? pointB.position : pointA.position;
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(pointA.position, drawWireSphereRadius);
+        Gizmos.DrawWireSphere(pointB.position, drawWireSphereRadius);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        other.transform.SetParent(transform);
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        other.transform.SetParent(null);
     }
 }
