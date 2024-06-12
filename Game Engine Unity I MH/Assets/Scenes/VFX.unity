@@ -386,7 +386,7 @@ Transform:
   m_GameObject: {fileID: 1023280468}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -45.45596, y: 4.49, z: -148.3}
+  m_LocalPosition: {x: -45.45596, y: 3.76, z: -145.59}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -622,7 +622,7 @@ VisualEffect:
       - m_Value: {x: -0, y: 0, z: 0}
         m_Name: New Transform_angles
         m_Overridden: 1
-      - m_Value: {x: -45.45596, y: 4.49, z: -148.3}
+      - m_Value: {x: -45.45596, y: 3.76, z: -145.59}
         m_Name: New Transform_position
         m_Overridden: 1
       - m_Value: {x: 1, y: 1, z: 1}
